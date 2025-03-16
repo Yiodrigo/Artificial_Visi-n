@@ -8,26 +8,20 @@ while True:
     if not ret:
         break
 
-    # Convertir a escala de grises
+    # Filtros
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(frame, (15, 15), 0)
+    edges = cv2.Canny(frame, 100, 200)
+    inverted = cv2.bitwise_not(frame)
+    mirror = cv2.flip(frame, 1)
 
-    # Aplicar detección de bordes estilo "cómic"
-    #edges = cv2.Canny(gray, 100, 200)
-    #cv2.imshow('Efecto Cómic', edges)
-    #Sepia
-    #sepia_filter = np.array([[0.272, 0.534, 0.131], 
-    #                     [0.349, 0.686, 0.168], 
-    #                     [0.393, 0.769, 0.189]])
-    #sepia = cv2.transform(frame, sepia_filter)
-    #cv2.imshow('Efecto Sepia', sepia)
-    # Invierte los colores
-    #inverted = cv2.bitwise_not(frame)  
-    #cv2.imshow('Negativo', inverted)
-    #Escala de grises
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Mostrar imágenes
+    cv2.imshow('Original', frame)
     cv2.imshow('Escala de Grises', gray)
-
-
+    cv2.imshow('Desenfoque', blur)
+    cv2.imshow('Bordes', edges)
+    cv2.imshow('Negativo', inverted)
+    cv2.imshow('Espejo', mirror)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
