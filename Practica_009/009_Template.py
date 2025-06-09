@@ -1,53 +1,36 @@
 import cv2
 import numpy as np
-import os
 
 # -------------------- CARGA DE IMÁGENES --------------------
-# Usamos nombres relativos (mismo directorio)
-img_scene = cv2.imread("Ases.jpg")
-img_template = cv2.imread("Corazon.jpg")
+img = cv2.imread("Ases.jpg")
+template = cv2.imread("Corazon.jpg")
 
-if img_scene is None or img_template is None:
-    print("❌ Error al cargar las imágenes. Asegúrate de que 'Ases.jpg' y 'Corazon.jpg' estén en la misma carpeta.")
+if img is None or template is None:
+    print("❌ Error al cargar las imágenes.")
     exit()
 
-# Convertir a escala de grises
-gray_scene = cv2.cvtColor(img_scene, cv2.COLOR_BGR2GRAY)
-gray_template = cv2.cvtColor(img_template, cv2.COLOR_BGR2GRAY)
+h, w = template.shape[:2]
 
-# -------------------- DETECCIÓN ORB --------------------
-orb = cv2.ORB_create(nfeatures=1000)
-kp1, des1 = orb.detectAndCompute(gray_template, None)
-kp2, des2 = orb.detectAndCompute(gray_scene, None)
+# -------------------- TEMPLATE MATCHING --------------------
+# Convertimos a escala de grises para mejorar la precisión
+gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+gray_template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 
-bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
-matches = bf.knnMatch(des1, des2, k=2)
+# Aplicar template matching
+resultado = cv2.matchTemplate(gray_img, gray_template, cv2.TM_CCOEFF_NORMED)
 
-# -------------------- FILTRAR BUENAS COINCIDENCIAS --------------------
-buenas = []
-for m, n in matches:
-    if m.distance < 0.75 * n.distance:
-        buenas.append(m)
+# Umbral mínimo de similitud
+umbral = 0.85
+loc = np.where(resultado >= umbral)
 
-# -------------------- HOMOGRAFÍA Y DIBUJO --------------------
-if len(buenas) >= 10:
-    src_pts = np.float32([kp1[m.queryIdx].pt for m in buenas]).reshape(-1, 1, 2)
-    dst_pts = np.float32([kp2[m.trainIdx].pt for m in buenas]).reshape(-1, 1, 2)
+# -------------------- DIBUJAR RECTÁNGULOS DE DETECCIÓN --------------------
+detectados = 0
+for pt in zip(*loc[::-1]):
+    cv2.rectangle(img, pt, (pt[0]+w, pt[1]+h), (0, 255, 0), 3)
+    detectados += 1
 
-    M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
-
-    h, w = gray_template.shape
-    pts = np.float32([[0, 0], [w, 0], [w, h], [0, h]]).reshape(-1, 1, 2)
-    destino = cv2.perspectiveTransform(pts, M)
-
-    img_resultado = cv2.polylines(img_scene.copy(), [np.int32(destino)], True, (0, 255, 0), 3)
-    mensaje = f"Coincidencias: {len(buenas)}"
-else:
-    img_resultado = img_scene.copy()
-    mensaje = "No se encontro el Corazon"
-
-# -------------------- MOSTRAR RESULTADO --------------------
-cv2.putText(img_resultado, mensaje, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-cv2.imshow("Detección de Corazon con ORB", img_resultado)
+# -------------------- MOSTRAR RESULTADOS --------------------
+print(f"✔ ROI detectados con umbral ≥ {umbral}: {detectados}")
+cv2.imshow("Detección con Template Matching", img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
