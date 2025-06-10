@@ -4,7 +4,7 @@ import numpy as np
 # ---------------------- CONFIGURACIÓN ----------------------
 
 # Cambia el nombre de la imagen por la que desees probar
-nombre_imagen = "Caja.jpg"  # Puedes cambiar a: puerta.jpg, ventana.jpg, arquitectura.jpg
+nombre_imagen = "Mosaico.jpg"  # Puedes cambiar a: puerta.jpg, ventana.jpg, arquitectura.jpg
 
 # ---------------------- CARGAR IMAGEN ----------------------
 

@@ -2,11 +2,11 @@ import cv2
 import numpy as np
 
 # -------------------- CARGA DE IMÁGENES --------------------
-img = cv2.imread("Ases.jpg")
-template = cv2.imread("Corazon.jpg")
+img = cv2.imread("PC.jpg")
+template = cv2.imread("PIN.jpg")
 
 if img is None or template is None:
-    print("❌ Error al cargar las imágenes.")
+    print("Error al cargar las imágenes.")
     exit()
 
 h, w = template.shape[:2]
@@ -30,7 +30,7 @@ for pt in zip(*loc[::-1]):
     detectados += 1
 
 # -------------------- MOSTRAR RESULTADOS --------------------
-print(f"✔ ROI detectados con umbral ≥ {umbral}: {detectados}")
-cv2.imshow("Detección con Template Matching", img)
+print(f"ROI detectados con umbral ≥ {umbral}: {detectados}")
+cv2.imshow("Deteccion con Template Matching", img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
